@@ -1,8 +1,17 @@
 <html>
   <head>
+    <!--<link href="https://fonts.googleapis.com/css?family=VT323&display=swap" rel="stylesheet">-->
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
     <script src='game.js'></script>
+    <style>
+      #gameCanvas {
+        image-rendering: pixelated;
+        transform-origin: 0 0;
+        transform: scale(10);
+      }
+    </style>
   </head>
   <body>
-    <canvas id='gameCanvas'></canvas>
+    <canvas id='gameCanvas' height="64" width="96"></canvas>
   </body>
 </html>
