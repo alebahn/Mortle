@@ -1,4 +1,4 @@
-type GameState = "Startup" | "Menu" | "Aim";
+type GameState = "Startup" | "Menu" | "Aim" | "Launch";
 
 const MenuOptions = ["New Game", "Continue"] as const;
 type MenuOption = typeof MenuOptions[number];
@@ -10,44 +10,60 @@ class UnreachableCaseError extends Error {
 }
 
 type Level = (0 | 1)[][];
-// 12x8
+// 19x12
 const levels : [Level] = [
   [
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,0,0,1,0,0,0,0,0,0]
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
   ]
 ]
 
 class Game {
+  private canvas: HTMLCanvasElement;
   private canvasContext: CanvasRenderingContext2D;
   private gameState: GameState = "Startup";
   private nextState: GameState = "Startup";
   private lastTimeStep = 0;
   private width: number;
   private height: number;
-  private background: ImageData;
 
+  // Menu Variables
   private menuState: MenuOption = "New Game";
-  private oldMenuState: MenuOption = "New Game";
 
+  // Level Variables
   private currentLevel: number = -1;
   private nextLevel: number = -1;
 
-  private currentX : number = 4;
-  private currentY : number = 63;
+  // Aim Variables
+  private readonly AimLength = 6;
+  private readonly AngleDelta = Math.PI / 32;
   private aimAngle : number = 0;
 
-  constructor(canvasContext: CanvasRenderingContext2D, width: number, height: number) {
+  // Aim/Launch Variables
+  private currentX : number = 2;
+  private currentY : number = 59;
+
+  // Launch Variables
+  private readonly Gravity = 0.025;
+  private readonly AirResistance = .9756;
+  private velocityX : number = 0;
+  private velocityY : number = 0;
+
+  constructor(canvas: HTMLCanvasElement, canvasContext: CanvasRenderingContext2D) {
+    this.canvas = canvas;
     this.canvasContext = canvasContext;
-    this.width = width;
-    this.height = height;
-    this.background = new ImageData(width, height);
+    this.width = canvas.width;
+    this.height = canvas.height;
   }
 
   public DrawMenu(): void {
@@ -63,7 +79,7 @@ class Game {
     for (let y in level) {
       for (let x in level[y]) {
         if (level[y][x]) {
-          this.canvasContext.fillRect(Number(x)*8,Number(y)*8,8,8);
+          this.canvasContext.fillRect(Number(x)*5,Number(y)*5,5,5);
         }
       }
     }
@@ -87,15 +103,29 @@ class Game {
             break;
         }
         break;
+      case "Aim":
+        switch (ev.keyCode) {
+          case 37: // Left
+            this.aimAngle -= this.AngleDelta;
+            break;
+          case 39: // Right
+            this.aimAngle += this.AngleDelta;
+            break;
+          case 38: // Up
+          case 32: // Space
+          case 13: // Enter
+            this.nextState = "Launch";
+            this.currentY -= 1;
+            this.velocityX = Math.sin(this.aimAngle);
+            this.velocityY = -Math.cos(this.aimAngle);
+            break;
+        }
+        break;
     }
-  }
-
-  private HandleKeyUp(ev: KeyboardEvent): void {
   }
 
   public Start(): void {
     document.addEventListener("keydown", this.HandleKeyDown.bind(this));
-    document.addEventListener("keyup", this.HandleKeyUp.bind(this));
     requestAnimationFrame(this.Loop.bind(this));
   }
 
@@ -106,15 +136,54 @@ class Game {
     requestAnimationFrame(this.Loop.bind(this));
   }
 
+  private CheckCollision(x : number, y : number) : boolean {
+    if (x < 0) {
+      return true;
+    }
+    if (x >= 95) {
+      return true;
+    }
+    if (y < 0) {
+      return true;
+    }
+    if (y >= 60) {
+      return true;
+    }
+    const level = levels[this.currentLevel];
+    return level[Math.floor(y/5)][Math.floor(x/5)] == 1;
+  }
+
   private Update(): void {
     switch (this.gameState) {
       case "Startup":
         this.nextState = "Menu";
         break;
+      case "Launch":
+        this.currentX += this.velocityX;
+        this.currentY += this.velocityY;
+        this.velocityY += this.Gravity;
+        this.velocityY *= this.AirResistance;
+        // Ceiling collisions stop movement
+        if (this.CheckCollision(this.currentX,this.currentY-1)) {
+          this.velocityX = 0;
+          this.velocityY = 0;
+        }
+        // Floor collisions go back to aiming
+        else if (this.CheckCollision(this.currentX, this.currentY+1)) {
+          this.currentX = Math.round(this.currentX);
+          this.currentY = Math.round(this.currentY);
+          this.nextState = "Aim";
+        }
+        // Horizontal collisions bounce horizontally
+        else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
+          this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
+            this.velocityX *= -1;
+        }
+        break;
     }
   }
 
-  private Line(x0 : number, y0 : number, x1 : number, y1 : number) {
+  private DrawLine(x0 : number, y0 : number, x1 : number, y1 : number) {
     const dx = Math.abs(x1 - x0);
     const dy = Math.abs(y1 - y0);
     const sx = (x0 < x1) ? 1 : -1;
@@ -137,21 +206,15 @@ class Game {
         case "Menu":
           this.canvasContext.clearRect(0, 0, this.width, this.height);
           this.DrawMenu();
-          this.background = this.canvasContext.getImageData(0, 0, this.width, this.height);
+          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
           break;
         case "Aim":
           if (this.currentLevel !== this.nextLevel) {
             this.currentLevel = this.nextLevel;
             this.canvasContext.clearRect(0, 0, this.width, this.height);
             this.DrawLevel();
-            this.background = this.canvasContext.getImageData(0, 0, this.width, this.height);
+            this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
           }
-          this.canvasContext.fillRect(this.currentX-1, this.currentY-1, 3, 3);
-          this.Line(this.currentX, this.currentY, this.currentX, this.currentY - 6);
-          //this.canvasContext.moveTo(this.currentX + .5, this.currentY + .5);
-          //this.canvasContext.lineTo(this.currentX + .5 + 6 * Math.sin(this.aimAngle), this.currentY + .5 - 6 * Math.cos(this.aimAngle));
-          this.canvasContext.stroke();
-          break;
       }
       this.gameState = this.nextState;
     }
@@ -159,15 +222,20 @@ class Game {
     switch (this.gameState) {
       case "Menu":
         const xCoordinate = 72;
-        if (this.oldMenuState !== this.menuState) {
-          const yCoordinateOld = this.GetYCoordinateFromMenuState(this.oldMenuState);
-          this.canvasContext.fillStyle = "white";
-          this.canvasContext.fillText("<", xCoordinate, yCoordinateOld);
-          this.canvasContext.fillStyle = "black";
-          this.oldMenuState = this.menuState;
-        }
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
         const yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
         this.canvasContext.fillText("<", xCoordinate, yCoordinate);
+        break;
+      case "Aim":
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
+        const endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
+        const endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
+        this.DrawLine(this.currentX, this.currentY, endX, endY);
+        break;
+      case "Launch":
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
         break;
     }
   }
@@ -190,7 +258,7 @@ window.onload = () => {
     WebFont.load({
       google: { families: ['Press Start 2P'] },
       active: function () {
-        let game = new Game(contextNotNull, canvas.width, canvas.height);
+        let game = new Game(canvas, contextNotNull);
         game.Start();
       }
     })
