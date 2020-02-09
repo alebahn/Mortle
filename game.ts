@@ -11,7 +11,21 @@ class UnreachableCaseError extends Error {
 
 type Level = (0 | 1)[][];
 // 19x12
-const levels : [Level] = [
+const levels : Level[] = [
+  [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
+  ],
   [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -21,11 +35,53 @@ const levels : [Level] = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1],
+    [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+    [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+  ],
+  [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0],
+    [0,1,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0],
+    [0,0,1,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0],
+    [1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+    [1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+    [0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+  ],
+  [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-  ]
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0],
+    [0,0,0,1,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0],
+    [0,1,1,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]
+  ],
+  [
+    [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+    [1,1,1,0,0,0,0,1,0,0,0,0,1,1,0,1,0,0,0],
+    [0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0],
+    [0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,1,0,0,0],
+    [0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0],
+    [0,1,1,0,0,1,1,1,1,1,1,0,1,1,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0],
+    [0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0],
+    [0,0,0,0,1,0,1,1,1,0,1,1,1,1,0,1,0,0,0],
+    [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1],
+    [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0]
+  ],
 ]
 
 class Game {
@@ -74,6 +130,11 @@ class Game {
     this.canvasContext.fillText("Continue", 4, 32);
   }
 
+  public DrawDoor(): void {
+    this.canvasContext.strokeRect(90.5,55.5,4,4);
+    this.canvasContext.fillRect(93,57,1,1);
+  }
+
   public DrawLevel(): void {
     const level = levels[this.currentLevel];
     for (let y in level) {
@@ -83,6 +144,7 @@ class Game {
         }
       }
     }
+    this.DrawDoor();
   }
 
   private HandleKeyDown(ev: KeyboardEvent): void {
@@ -137,6 +199,8 @@ class Game {
   }
 
   private CheckCollision(x : number, y : number) : boolean {
+    x = Math.round(x);
+    y = Math.round(y);
     if (x < 0) {
       return true;
     }
@@ -153,6 +217,20 @@ class Game {
     return level[Math.floor(y/5)][Math.floor(x/5)] == 1;
   }
 
+  private AdvanceToNextLevel() : void {
+    this.nextLevel = this.currentLevel + 1;
+    this.aimAngle = 0;
+    this.currentX = 2;
+    this.currentY = 59;
+  }
+
+  private UpdateDebugInfo(): void {
+    document.getElementById("X")!.innerText = String(this.currentX);
+    document.getElementById("Y")!.innerText = String(this.currentY);
+    document.getElementById("XVel")!.innerText = String(this.velocityX);
+    document.getElementById("YVel")!.innerText = String(this.velocityY);
+  }
+
   private Update(): void {
     switch (this.gameState) {
       case "Startup":
@@ -163,8 +241,9 @@ class Game {
         this.currentY += this.velocityY;
         this.velocityY += this.Gravity;
         this.velocityY *= this.AirResistance;
+        this.UpdateDebugInfo();
         // Ceiling collisions stop movement
-        if (this.CheckCollision(this.currentX,this.currentY-1)) {
+        if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
           this.velocityX = 0;
           this.velocityY = 0;
         }
@@ -173,6 +252,9 @@ class Game {
           this.currentX = Math.round(this.currentX);
           this.currentY = Math.round(this.currentY);
           this.nextState = "Aim";
+          if (this.currentX >= 90 && this.currentY >= 55) {
+            this.AdvanceToNextLevel();
+          }
         }
         // Horizontal collisions bounce horizontally
         else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
