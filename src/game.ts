@@ -197,6 +197,103 @@ class Game {
     this.height = canvas.height;
   }
 
+  public Start(): void {
+    document.addEventListener("keydown", this.HandleKeyDown.bind(this));
+    requestAnimationFrame(this.Loop.bind(this));
+  }
+
+  private Loop(timestamp: number): void {
+    this.Update();
+    this.Draw();
+    this.lastTimeStep = timestamp;
+    requestAnimationFrame(this.Loop.bind(this));
+  }
+
+  private Update(): void {
+    switch (this.gameState) {
+      case "Startup":
+        this.nextState = "Menu";
+        break;
+      case "Launch":
+        // Ceiling collisions stop movement
+        if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
+          this.velocityX = 0;
+          this.velocityY = 0;
+        }
+        // Floor collisions go back to aiming
+        else if (this.CheckCollision(this.currentX, this.currentY+1)) {
+          this.currentX = Math.round(this.currentX);
+          this.currentY = Math.round(this.currentY);
+          this.nextState = "Aim";
+          if (this.currentX >= 90 && this.currentY >= 55) {
+            this.AdvanceToNextLevel();
+          }
+          break;
+        }
+        // Horizontal collisions bounce horizontally
+        else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
+          this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
+            this.velocityX *= -1;
+        }
+        this.currentX += this.velocityX;
+        this.currentY += this.velocityY;
+        this.velocityY += this.Gravity;
+        this.velocityY *= this.AirResistance;
+        this.UpdateDebugInfo();
+        break;
+    }
+  }
+
+  private Draw(): void {
+    if (this.gameState !== this.nextState) {
+      switch (this.nextState) {
+        case "Menu":
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.DrawMenu();
+          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+          break;
+        case "Aim":
+          if (this.currentLevel !== this.nextLevel) {
+            this.currentLevel = this.nextLevel;
+            this.canvasContext.clearRect(0, 0, this.width, this.height);
+            this.DrawLevel();
+            this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+          }
+          break;
+        case "Launch":
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          break;
+        case "Win":
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.DrawWin();
+          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+      }
+      this.gameState = this.nextState;
+    }
+
+    switch (this.gameState) {
+      case "Menu":
+        const xCoordinate = 72;
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        const yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
+        this.canvasContext.fillText("<", xCoordinate, yCoordinate);
+        break;
+      case "Aim":
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
+        const endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
+        const endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
+        this.DrawLine(this.currentX, this.currentY, endX, endY);
+        break;
+      case "Launch":
+        if (!this.showPath) {
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+        }
+        this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
+        break;
+    }
+  }
+
   public DrawMenu(): void {
     this.canvasContext.font = "8px 'Press Start 2P'";
     this.canvasContext.fillText("MORTLE", 24, 12);
@@ -214,11 +311,6 @@ class Game {
     this.canvasContext.fillText("menu", 4, 48);
   }
 
-  public DrawDoor(): void {
-    this.canvasContext.strokeRect(90.5,55.5,4,4);
-    this.canvasContext.fillRect(93,57,1,1);
-  }
-
   public DrawLevel(): void {
     const level = levels[this.currentLevel];
     for (let y in level) {
@@ -229,6 +321,11 @@ class Game {
       }
     }
     this.DrawDoor();
+  }
+
+  public DrawDoor(): void {
+    this.canvasContext.strokeRect(90.5,55.5,4,4);
+    this.canvasContext.fillRect(93,57,1,1);
   }
 
   private GetLevelFromCookie(): number {
@@ -290,18 +387,6 @@ class Game {
     }
   }
 
-  public Start(): void {
-    document.addEventListener("keydown", this.HandleKeyDown.bind(this));
-    requestAnimationFrame(this.Loop.bind(this));
-  }
-
-  private Loop(timestamp: number): void {
-    this.Update();
-    this.Draw();
-    this.lastTimeStep = timestamp;
-    requestAnimationFrame(this.Loop.bind(this));
-  }
-
   private CheckCollision(x : number, y : number) : boolean {
     x = Math.round(x);
     y = Math.round(y);
@@ -340,41 +425,6 @@ class Game {
     document.getElementById("YVel")!.innerText = String(this.velocityY);
   }
 
-  private Update(): void {
-    switch (this.gameState) {
-      case "Startup":
-        this.nextState = "Menu";
-        break;
-      case "Launch":
-        // Ceiling collisions stop movement
-        if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
-          this.velocityX = 0;
-          this.velocityY = 0;
-        }
-        // Floor collisions go back to aiming
-        else if (this.CheckCollision(this.currentX, this.currentY+1)) {
-          this.currentX = Math.round(this.currentX);
-          this.currentY = Math.round(this.currentY);
-          this.nextState = "Aim";
-          if (this.currentX >= 90 && this.currentY >= 55) {
-            this.AdvanceToNextLevel();
-          }
-          break;
-        }
-        // Horizontal collisions bounce horizontally
-        else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
-          this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
-            this.velocityX *= -1;
-        }
-        this.currentX += this.velocityX;
-        this.currentY += this.velocityY;
-        this.velocityY += this.Gravity;
-        this.velocityY *= this.AirResistance;
-        this.UpdateDebugInfo();
-        break;
-    }
-  }
-
   private InvertPixel(x : number, y : number) : void {
     if (this.invertBarrel && this.CheckCollision(x, y))
     {
@@ -404,55 +454,6 @@ class Game {
     }
   }
 
-  private Draw(): void {
-    if (this.gameState !== this.nextState) {
-      switch (this.nextState) {
-        case "Menu":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
-          this.DrawMenu();
-          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
-          break;
-        case "Aim":
-          if (this.currentLevel !== this.nextLevel) {
-            this.currentLevel = this.nextLevel;
-            this.canvasContext.clearRect(0, 0, this.width, this.height);
-            this.DrawLevel();
-            this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
-          }
-          break;
-        case "Launch":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
-          break;
-        case "Win":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
-          this.DrawWin();
-          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
-      }
-      this.gameState = this.nextState;
-    }
-
-    switch (this.gameState) {
-      case "Menu":
-        const xCoordinate = 72;
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
-        const yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
-        this.canvasContext.fillText("<", xCoordinate, yCoordinate);
-        break;
-      case "Aim":
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
-        this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
-        const endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
-        const endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
-        this.DrawLine(this.currentX, this.currentY, endX, endY);
-        break;
-      case "Launch":
-        if (!this.showPath) {
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
-        }
-        this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
-        break;
-    }
-  }
   private GetYCoordinateFromMenuState(menuState: MenuOption): number {
     switch (menuState) {
       case "New Game":
