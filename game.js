@@ -1,6 +1,4 @@
 "use strict";
-//import Cookies from 'js-cookie';
-//import WebFont from 'webfontloader';
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -226,6 +224,7 @@ var Game = /** @class */ (function () {
         this.DrawDoor();
     };
     Game.prototype.GetLevelFromCookie = function () {
+        return levels.length - 1;
         var currentLevel = Cookies.get(this.levelCookie);
         if (currentLevel) {
             var numberLevel = Number(currentLevel);
@@ -311,13 +310,14 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.AdvanceToNextLevel = function () {
         this.nextLevel = this.currentLevel + 1;
-        if (this.nextLevel >= levels.length) {
-            this.nextState = "Win";
-        }
-        Cookies.set(this.levelCookie, String(this.nextLevel));
         this.aimAngle = 0;
         this.currentX = 2;
         this.currentY = 59;
+        if (this.nextLevel >= levels.length) {
+            this.nextState = "Win";
+            return;
+        }
+        Cookies.set(this.levelCookie, String(this.nextLevel), { expires: 99999 });
     };
     Game.prototype.UpdateDebugInfo = function () {
         document.getElementById("X").innerText = String(this.currentX);
@@ -411,7 +411,9 @@ var Game = /** @class */ (function () {
                     this.canvasContext.clearRect(0, 0, this.width, this.height);
                     break;
                 case "Win":
+                    this.canvasContext.clearRect(0, 0, this.width, this.height);
                     this.DrawWin();
+                    this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
             }
             this.gameState = this.nextState;
         }
