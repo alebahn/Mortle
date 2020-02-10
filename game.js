@@ -224,7 +224,6 @@ var Game = /** @class */ (function () {
         this.DrawDoor();
     };
     Game.prototype.GetLevelFromCookie = function () {
-        return levels.length - 1;
         var currentLevel = Cookies.get(this.levelCookie);
         if (currentLevel) {
             var numberLevel = Number(currentLevel);
