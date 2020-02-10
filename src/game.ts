@@ -1,4 +1,4 @@
-type GameState = "Startup" | "Menu" | "Aim" | "Launch";
+type GameState = "Startup" | "Menu" | "Aim" | "Launch" | "Win";
 
 const MenuOptions = ["New Game", "Continue"] as const;
 type MenuOption = typeof MenuOptions[number];
@@ -167,6 +167,7 @@ class Game {
   private menuState: MenuOption = "New Game";
 
   // Level Variables
+  private readonly levelCookie = "CurrentLevel";
   private currentLevel: number = -1;
   private nextLevel: number = -1;
 
@@ -204,6 +205,15 @@ class Game {
     this.canvasContext.fillText("Continue", 4, 32);
   }
 
+  public DrawWin(): void {
+    this.canvasContext.font = "8px 'Press Start 2P'";
+    this.canvasContext.fillText("You Win!", 16, 12);
+    this.canvasContext.fillText("Press any", 4, 24);
+    this.canvasContext.fillText("key to", 4, 32);
+    this.canvasContext.fillText("return to", 4, 40)
+    this.canvasContext.fillText("menu", 4, 48);
+  }
+
   public DrawDoor(): void {
     this.canvasContext.strokeRect(90.5,55.5,4,4);
     this.canvasContext.fillRect(93,57,1,1);
@@ -219,6 +229,19 @@ class Game {
       }
     }
     this.DrawDoor();
+  }
+
+  private GetLevelFromCookie(): number {
+    const currentLevel = Cookies.get(this.levelCookie);
+    if (currentLevel)
+    {
+      const numberLevel = Number(currentLevel);
+      if (numberLevel > 0 && numberLevel<levels.length)
+      {
+        return numberLevel;
+      }
+    }
+    return 0;
   }
 
   private HandleKeyDown(ev: KeyboardEvent): void {
@@ -238,7 +261,7 @@ class Game {
             if (this.menuState == "New Game") {
               this.nextLevel = 0;
             } else {
-              this.nextLevel = 0;
+              this.nextLevel = this.GetLevelFromCookie();
             }
             break;
         }
@@ -260,6 +283,9 @@ class Game {
             this.velocityY = -Math.cos(this.aimAngle);
             break;
         }
+        break;
+      case "Win":
+        this.nextState = "Menu";
         break;
     }
   }
@@ -297,6 +323,10 @@ class Game {
 
   private AdvanceToNextLevel() : void {
     this.nextLevel = this.currentLevel + 1;
+    if (this.nextLevel >= levels.length) {
+      this.nextState = "Win";
+    }
+    Cookies.set(this.levelCookie, String(this.nextLevel));
     this.aimAngle = 0;
     this.currentX = 2;
     this.currentY = 59;
@@ -390,7 +420,10 @@ class Game {
           }
           break;
         case "Launch":
-            this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          break;
+        case "Win":
+          this.DrawWin();
       }
       this.gameState = this.nextState;
     }
