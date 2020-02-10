@@ -82,6 +82,62 @@ const levels : Level[] = [
     [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1],
     [0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0]
   ],
+  [
+    [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+    [1,1,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0],
+    [0,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
+    [1,1,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,1,0,0,0,0,0,1,0,1,1],
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+  ],
+  [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,1,1,0,0,1,0,0,0,1,0,0,0],
+    [1,1,1,1,1,1,0,0,1,0,1,1,1,1,0,1,0,0,0],
+    [0,0,0,0,0,1,1,0,1,0,0,1,0,0,0,1,0,0,0],
+    [0,0,0,0,0,1,0,0,1,0,0,1,0,1,1,1,0,0,0],
+    [0,0,1,1,0,1,0,1,1,0,0,1,0,0,0,1,0,0,0],
+    [1,0,1,0,0,0,0,0,1,1,0,1,1,1,0,1,0,0,0],
+    [0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0]
+  ],
+  [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+    [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+    [1,1,0,1,0,1,1,1,1,1,1,1,1,1,0,0,1,0,0],
+    [0,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,1,1,0],
+    [0,1,0,1,0,1,1,0,1,1,1,1,0,1,0,0,0,1,0],
+    [0,0,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0],
+    [0,1,1,1,0,1,0,1,1,0,1,0,0,1,0,0,0,0,0],
+    [0,0,0,1,0,1,0,0,1,0,1,1,1,1,1,1,1,1,1],
+    [1,0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0]
+  ],
+  [
+    [1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],
+    [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+    [0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1],
+    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],
+    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1],
+    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0],
+    [0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1],
+    [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
+  ],
 ]
 
 class Game {
@@ -114,6 +170,10 @@ class Game {
   private readonly AirResistance = .9756;
   private velocityX : number = 0;
   private velocityY : number = 0;
+
+  // Options
+  private showPath = false;
+  //private showPath = true;
 
   constructor(canvas: HTMLCanvasElement, canvasContext: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -161,7 +221,11 @@ class Game {
           case 32: // Space
           case 13: // Enter
             this.nextState = "Aim"
-            this.nextLevel = 0;
+            if (this.menuState == "New Game") {
+              this.nextLevel = 0;
+            } else {
+              this.nextLevel = 8;
+            }
             break;
         }
         break;
@@ -237,11 +301,6 @@ class Game {
         this.nextState = "Menu";
         break;
       case "Launch":
-        this.currentX += this.velocityX;
-        this.currentY += this.velocityY;
-        this.velocityY += this.Gravity;
-        this.velocityY *= this.AirResistance;
-        this.UpdateDebugInfo();
         // Ceiling collisions stop movement
         if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
           this.velocityX = 0;
@@ -255,12 +314,18 @@ class Game {
           if (this.currentX >= 90 && this.currentY >= 55) {
             this.AdvanceToNextLevel();
           }
+          break;
         }
         // Horizontal collisions bounce horizontally
         else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
           this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
             this.velocityX *= -1;
         }
+        this.currentX += this.velocityX;
+        this.currentY += this.velocityY;
+        this.velocityY += this.Gravity;
+        this.velocityY *= this.AirResistance;
+        this.UpdateDebugInfo();
         break;
     }
   }
@@ -297,6 +362,9 @@ class Game {
             this.DrawLevel();
             this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
           }
+          break;
+        case "Launch":
+            this.canvasContext.clearRect(0, 0, this.width, this.height);
       }
       this.gameState = this.nextState;
     }
@@ -316,7 +384,9 @@ class Game {
         this.DrawLine(this.currentX, this.currentY, endX, endY);
         break;
       case "Launch":
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        if (!this.showPath) {
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
+        }
         this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
         break;
     }
