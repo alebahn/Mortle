@@ -323,13 +323,14 @@ class Game {
 
   private AdvanceToNextLevel() : void {
     this.nextLevel = this.currentLevel + 1;
-    if (this.nextLevel >= levels.length) {
-      this.nextState = "Win";
-    }
-    Cookies.set(this.levelCookie, String(this.nextLevel));
     this.aimAngle = 0;
     this.currentX = 2;
     this.currentY = 59;
+    if (this.nextLevel >= levels.length) {
+      this.nextState = "Win";
+      return;
+    }
+    Cookies.set(this.levelCookie, String(this.nextLevel), {expires: 99999});
   }
 
   private UpdateDebugInfo(): void {
@@ -423,7 +424,9 @@ class Game {
           this.canvasContext.clearRect(0, 0, this.width, this.height);
           break;
         case "Win":
+          this.canvasContext.clearRect(0, 0, this.width, this.height);
           this.DrawWin();
+          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
       }
       this.gameState = this.nextState;
     }
