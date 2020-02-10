@@ -173,7 +173,7 @@ class Game {
 
   // Options
   private showPath = false;
-  //private showPath = true;
+  private invertBarrel = true;
 
   constructor(canvas: HTMLCanvasElement, canvasContext: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -330,7 +330,19 @@ class Game {
     }
   }
 
-  private DrawLine(x0 : number, y0 : number, x1 : number, y1 : number) {
+  private InvertPixel(x : number, y : number) : void {
+    if (this.invertBarrel && this.CheckCollision(x, y))
+    {
+      this.canvasContext.fillStyle = "white";
+      this.canvasContext.fillRect(x, y, 1, 1);
+      this.canvasContext.fillStyle = "black";
+    } else {
+      this.canvasContext.fillStyle = "black";
+      this.canvasContext.fillRect(x, y, 1, 1);
+    }
+  }
+
+  private DrawLine(x0 : number, y0 : number, x1 : number, y1 : number) : void {
     const dx = Math.abs(x1 - x0);
     const dy = Math.abs(y1 - y0);
     const sx = (x0 < x1) ? 1 : -1;
@@ -338,7 +350,7 @@ class Game {
     let err = dx - dy;
 
     while (true) {
-      this.canvasContext.fillRect(x0, y0, 1, 1);
+      this.InvertPixel(x0, y0);
 
       if ((x0 === x1) && (y0 === y1)) break;
       var e2 = 2 * err;
