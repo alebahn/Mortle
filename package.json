@@ -1,0 +1,26 @@
+{
+  "name": "mortle",
+  "version": "1.0.0",
+  "description": "A simple platformer game",
+  "browser": "dist/game.js",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "cp src/index.html dist/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alebahn/Mortle.git"
+  },
+  "author": "Aaron Lebahn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alebahn/Mortle/issues"
+  },
+  "homepage": "https://github.com/alebahn/Mortle#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/webfontloader": "^1.6.29",
+    "typescript": "^3.7.5"
+  }
+}
