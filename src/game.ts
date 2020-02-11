@@ -11,7 +11,7 @@ class UnreachableCaseError extends Error {
 
 type Level = (0 | 1)[][];
 // 19x12
-const levels : Level[] = [
+const levels: Level[] = [
   [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -174,17 +174,17 @@ class Game {
   // Aim Variables
   private readonly AimLength = 6;
   private readonly AngleDelta = Math.PI / 32;
-  private aimAngle : number = 0;
+  private aimAngle: number = 0;
 
   // Aim/Launch Variables
-  private currentX : number = 2;
-  private currentY : number = 59;
+  private currentX: number = 2;
+  private currentY: number = 59;
 
   // Launch Variables
   private readonly Gravity = 0.025;
   private readonly AirResistance = .9756;
-  private velocityX : number = 0;
-  private velocityY : number = 0;
+  private velocityX: number = 0;
+  private velocityY: number = 0;
 
   // Options
   private showPath = false;
@@ -221,10 +221,11 @@ class Game {
           this.velocityY = 0;
         }
         // Floor collisions go back to aiming
-        else if (this.CheckCollision(this.currentX, this.currentY+1)) {
+        else if (this.CheckCollision(this.currentX, this.currentY + 1)) {
           this.currentX = Math.round(this.currentX);
           this.currentY = Math.round(this.currentY);
           this.nextState = "Aim";
+          // If you land in the bottom-right corner, advance the level
           if (this.currentX >= 90 && this.currentY >= 55) {
             this.AdvanceToNextLevel();
           }
@@ -239,7 +240,6 @@ class Game {
         this.currentY += this.velocityY;
         this.velocityY += this.Gravity;
         this.velocityY *= this.AirResistance;
-        this.UpdateDebugInfo();
         break;
     }
   }
@@ -248,25 +248,25 @@ class Game {
     if (this.gameState !== this.nextState) {
       switch (this.nextState) {
         case "Menu":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.ClearScreen();
           this.DrawMenu();
-          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+          this.SaveToBackground();
           break;
         case "Aim":
           if (this.currentLevel !== this.nextLevel) {
             this.currentLevel = this.nextLevel;
-            this.canvasContext.clearRect(0, 0, this.width, this.height);
+            this.ClearScreen();
             this.DrawLevel();
-            this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+            this.SaveToBackground();
           }
           break;
         case "Launch":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.ClearScreen();
           break;
         case "Win":
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.ClearScreen();
           this.DrawWin();
-          this.canvas.style.background = "url("+this.canvas.toDataURL()+")";
+          this.SaveToBackground();
       }
       this.gameState = this.nextState;
     }
@@ -274,12 +274,12 @@ class Game {
     switch (this.gameState) {
       case "Menu":
         const xCoordinate = 72;
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        this.ClearScreen();
         const yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
         this.canvasContext.fillText("<", xCoordinate, yCoordinate);
         break;
       case "Aim":
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
+        this.ClearScreen();
         this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
         const endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
         const endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
@@ -287,14 +287,14 @@ class Game {
         break;
       case "Launch":
         if (!this.showPath) {
-          this.canvasContext.clearRect(0, 0, this.width, this.height);
+          this.ClearScreen();
         }
         this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
         break;
     }
   }
 
-  public DrawMenu(): void {
+  private DrawMenu(): void {
     this.canvasContext.font = "8px 'Press Start 2P'";
     this.canvasContext.fillText("MORTLE", 24, 12);
 
@@ -302,7 +302,7 @@ class Game {
     this.canvasContext.fillText("Continue", 4, 32);
   }
 
-  public DrawWin(): void {
+  private DrawWin(): void {
     this.canvasContext.font = "8px 'Press Start 2P'";
     this.canvasContext.fillText("You Win!", 16, 12);
     this.canvasContext.fillText("Press any", 4, 24);
@@ -311,30 +311,36 @@ class Game {
     this.canvasContext.fillText("menu", 4, 48);
   }
 
-  public DrawLevel(): void {
+  private DrawLevel(): void {
     const level = levels[this.currentLevel];
     for (let y in level) {
       for (let x in level[y]) {
         if (level[y][x]) {
-          this.canvasContext.fillRect(Number(x)*5,Number(y)*5,5,5);
+          this.canvasContext.fillRect(Number(x) * 5, Number(y) * 5, 5, 5);
         }
       }
     }
     this.DrawDoor();
   }
 
-  public DrawDoor(): void {
-    this.canvasContext.strokeRect(90.5,55.5,4,4);
-    this.canvasContext.fillRect(93,57,1,1);
+  private DrawDoor(): void {
+    this.canvasContext.strokeRect(90.5, 55.5, 4, 4);
+    this.canvasContext.fillRect(93, 57, 1, 1);
+  }
+
+  private ClearScreen(): void {
+    this.canvasContext.clearRect(0, 0, this.width, this.height);
+  }
+
+  private SaveToBackground(): void {
+    this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
   }
 
   private GetLevelFromCookie(): number {
     const currentLevel = Cookies.get(this.levelCookie);
-    if (currentLevel)
-    {
+    if (currentLevel) {
       const numberLevel = Number(currentLevel);
-      if (numberLevel > 0 && numberLevel<levels.length)
-      {
+      if (numberLevel > 0 && numberLevel < levels.length) {
         return numberLevel;
       }
     }
@@ -387,7 +393,7 @@ class Game {
     }
   }
 
-  private CheckCollision(x : number, y : number) : boolean {
+  private CheckCollision(x: number, y: number): boolean {
     x = Math.round(x);
     y = Math.round(y);
     if (x < 0) {
@@ -403,10 +409,10 @@ class Game {
       return true;
     }
     const level = levels[this.currentLevel];
-    return level[Math.floor(y/5)][Math.floor(x/5)] == 1;
+    return level[Math.floor(y / 5)][Math.floor(x / 5)] == 1;
   }
 
-  private AdvanceToNextLevel() : void {
+  private AdvanceToNextLevel(): void {
     this.nextLevel = this.currentLevel + 1;
     this.aimAngle = 0;
     this.currentX = 2;
@@ -415,19 +421,11 @@ class Game {
       this.nextState = "Win";
       return;
     }
-    Cookies.set(this.levelCookie, String(this.nextLevel), {expires: 99999});
+    Cookies.set(this.levelCookie, String(this.nextLevel), { expires: 99999 });
   }
 
-  private UpdateDebugInfo(): void {
-    document.getElementById("X")!.innerText = String(this.currentX);
-    document.getElementById("Y")!.innerText = String(this.currentY);
-    document.getElementById("XVel")!.innerText = String(this.velocityX);
-    document.getElementById("YVel")!.innerText = String(this.velocityY);
-  }
-
-  private InvertPixel(x : number, y : number) : void {
-    if (this.invertBarrel && this.CheckCollision(x, y))
-    {
+  private InvertPixel(x: number, y: number): void {
+    if (this.invertBarrel && this.CheckCollision(x, y)) {
       this.canvasContext.fillStyle = "white";
       this.canvasContext.fillRect(x, y, 1, 1);
       this.canvasContext.fillStyle = "black";
@@ -437,7 +435,7 @@ class Game {
     }
   }
 
-  private DrawLine(x0 : number, y0 : number, x1 : number, y1 : number) : void {
+  private DrawLine(x0: number, y0: number, x1: number, y1: number): void {
     const dx = Math.abs(x1 - x0);
     const dy = Math.abs(y1 - y0);
     const sx = (x0 < x1) ? 1 : -1;
@@ -465,7 +463,6 @@ class Game {
 }
 
 window.onload = () => {
-
   const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
   const context = canvas.getContext("2d");
   if (context) {
@@ -476,6 +473,6 @@ window.onload = () => {
         let game = new Game(canvas, contextNotNull);
         game.Start();
       }
-    })
+    });
   }
 }
