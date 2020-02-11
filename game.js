@@ -194,6 +194,98 @@ var Game = /** @class */ (function () {
         this.width = canvas.width;
         this.height = canvas.height;
     }
+    Game.prototype.Start = function () {
+        document.addEventListener("keydown", this.HandleKeyDown.bind(this));
+        requestAnimationFrame(this.Loop.bind(this));
+    };
+    Game.prototype.Loop = function (timestamp) {
+        this.Update();
+        this.Draw();
+        this.lastTimeStep = timestamp;
+        requestAnimationFrame(this.Loop.bind(this));
+    };
+    Game.prototype.Update = function () {
+        switch (this.gameState) {
+            case "Startup":
+                this.nextState = "Menu";
+                break;
+            case "Launch":
+                // Ceiling collisions stop movement
+                if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
+                    this.velocityX = 0;
+                    this.velocityY = 0;
+                }
+                // Floor collisions go back to aiming
+                else if (this.CheckCollision(this.currentX, this.currentY + 1)) {
+                    this.currentX = Math.round(this.currentX);
+                    this.currentY = Math.round(this.currentY);
+                    this.nextState = "Aim";
+                    // If you land in the bottom-right corner, advance the level
+                    if (this.currentX >= 90 && this.currentY >= 55) {
+                        this.AdvanceToNextLevel();
+                    }
+                    break;
+                }
+                // Horizontal collisions bounce horizontally
+                else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
+                    this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
+                    this.velocityX *= -1;
+                }
+                this.currentX += this.velocityX;
+                this.currentY += this.velocityY;
+                this.velocityY += this.Gravity;
+                this.velocityY *= this.AirResistance;
+                break;
+        }
+    };
+    Game.prototype.Draw = function () {
+        if (this.gameState !== this.nextState) {
+            switch (this.nextState) {
+                case "Menu":
+                    this.ClearScreen();
+                    this.DrawMenu();
+                    this.SaveToBackground();
+                    break;
+                case "Aim":
+                    if (this.currentLevel !== this.nextLevel) {
+                        this.currentLevel = this.nextLevel;
+                        this.ClearScreen();
+                        this.DrawLevel();
+                        this.SaveToBackground();
+                    }
+                    break;
+                case "Launch":
+                    this.ClearScreen();
+                    break;
+                case "Win":
+                    this.ClearScreen();
+                    this.DrawWin();
+                    this.SaveToBackground();
+            }
+            this.gameState = this.nextState;
+        }
+        switch (this.gameState) {
+            case "Menu":
+                var xCoordinate = 72;
+                this.ClearScreen();
+                var yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
+                this.canvasContext.fillText("<", xCoordinate, yCoordinate);
+                break;
+            case "Aim":
+                this.ClearScreen();
+                this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
+                var endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
+                var endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
+                this.DrawLine(this.currentX, this.currentY, endX, endY);
+                break;
+            case "Launch":
+                if (!this.showPath) {
+                    this.ClearScreen();
+                }
+                this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
+                break;
+        }
+    };
     Game.prototype.DrawMenu = function () {
         this.canvasContext.font = "8px 'Press Start 2P'";
         this.canvasContext.fillText("MORTLE", 24, 12);
@@ -208,10 +300,6 @@ var Game = /** @class */ (function () {
         this.canvasContext.fillText("return to", 4, 40);
         this.canvasContext.fillText("menu", 4, 48);
     };
-    Game.prototype.DrawDoor = function () {
-        this.canvasContext.strokeRect(90.5, 55.5, 4, 4);
-        this.canvasContext.fillRect(93, 57, 1, 1);
-    };
     Game.prototype.DrawLevel = function () {
         var level = levels[this.currentLevel];
         for (var y in level) {
@@ -222,6 +310,16 @@ var Game = /** @class */ (function () {
             }
         }
         this.DrawDoor();
+    };
+    Game.prototype.DrawDoor = function () {
+        this.canvasContext.strokeRect(90.5, 55.5, 4, 4);
+        this.canvasContext.fillRect(93, 57, 1, 1);
+    };
+    Game.prototype.ClearScreen = function () {
+        this.canvasContext.clearRect(0, 0, this.width, this.height);
+    };
+    Game.prototype.SaveToBackground = function () {
+        this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
     };
     Game.prototype.GetLevelFromCookie = function () {
         var currentLevel = Cookies.get(this.levelCookie);
@@ -279,16 +377,6 @@ var Game = /** @class */ (function () {
                 break;
         }
     };
-    Game.prototype.Start = function () {
-        document.addEventListener("keydown", this.HandleKeyDown.bind(this));
-        requestAnimationFrame(this.Loop.bind(this));
-    };
-    Game.prototype.Loop = function (timestamp) {
-        this.Update();
-        this.Draw();
-        this.lastTimeStep = timestamp;
-        requestAnimationFrame(this.Loop.bind(this));
-    };
     Game.prototype.CheckCollision = function (x, y) {
         x = Math.round(x);
         y = Math.round(y);
@@ -317,46 +405,6 @@ var Game = /** @class */ (function () {
             return;
         }
         Cookies.set(this.levelCookie, String(this.nextLevel), { expires: 99999 });
-    };
-    Game.prototype.UpdateDebugInfo = function () {
-        document.getElementById("X").innerText = String(this.currentX);
-        document.getElementById("Y").innerText = String(this.currentY);
-        document.getElementById("XVel").innerText = String(this.velocityX);
-        document.getElementById("YVel").innerText = String(this.velocityY);
-    };
-    Game.prototype.Update = function () {
-        switch (this.gameState) {
-            case "Startup":
-                this.nextState = "Menu";
-                break;
-            case "Launch":
-                // Ceiling collisions stop movement
-                if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
-                    this.velocityX = 0;
-                    this.velocityY = 0;
-                }
-                // Floor collisions go back to aiming
-                else if (this.CheckCollision(this.currentX, this.currentY + 1)) {
-                    this.currentX = Math.round(this.currentX);
-                    this.currentY = Math.round(this.currentY);
-                    this.nextState = "Aim";
-                    if (this.currentX >= 90 && this.currentY >= 55) {
-                        this.AdvanceToNextLevel();
-                    }
-                    break;
-                }
-                // Horizontal collisions bounce horizontally
-                else if (this.CheckCollision(this.currentX - 1, this.currentY) && this.velocityX < 0 ||
-                    this.CheckCollision(this.currentX + 1, this.currentY) && this.velocityX > 0) {
-                    this.velocityX *= -1;
-                }
-                this.currentX += this.velocityX;
-                this.currentY += this.velocityY;
-                this.velocityY += this.Gravity;
-                this.velocityY *= this.AirResistance;
-                this.UpdateDebugInfo();
-                break;
-        }
     };
     Game.prototype.InvertPixel = function (x, y) {
         if (this.invertBarrel && this.CheckCollision(x, y)) {
@@ -388,54 +436,6 @@ var Game = /** @class */ (function () {
                 err += dx;
                 y0 += sy;
             }
-        }
-    };
-    Game.prototype.Draw = function () {
-        if (this.gameState !== this.nextState) {
-            switch (this.nextState) {
-                case "Menu":
-                    this.canvasContext.clearRect(0, 0, this.width, this.height);
-                    this.DrawMenu();
-                    this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
-                    break;
-                case "Aim":
-                    if (this.currentLevel !== this.nextLevel) {
-                        this.currentLevel = this.nextLevel;
-                        this.canvasContext.clearRect(0, 0, this.width, this.height);
-                        this.DrawLevel();
-                        this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
-                    }
-                    break;
-                case "Launch":
-                    this.canvasContext.clearRect(0, 0, this.width, this.height);
-                    break;
-                case "Win":
-                    this.canvasContext.clearRect(0, 0, this.width, this.height);
-                    this.DrawWin();
-                    this.canvas.style.background = "url(" + this.canvas.toDataURL() + ")";
-            }
-            this.gameState = this.nextState;
-        }
-        switch (this.gameState) {
-            case "Menu":
-                var xCoordinate = 72;
-                this.canvasContext.clearRect(0, 0, this.width, this.height);
-                var yCoordinate = this.GetYCoordinateFromMenuState(this.menuState);
-                this.canvasContext.fillText("<", xCoordinate, yCoordinate);
-                break;
-            case "Aim":
-                this.canvasContext.clearRect(0, 0, this.width, this.height);
-                this.canvasContext.fillRect(this.currentX - 1, this.currentY - 1, 3, 3);
-                var endX = Math.round(this.currentX + this.AimLength * Math.sin(this.aimAngle));
-                var endY = Math.round(this.currentY - this.AimLength * Math.cos(this.aimAngle));
-                this.DrawLine(this.currentX, this.currentY, endX, endY);
-                break;
-            case "Launch":
-                if (!this.showPath) {
-                    this.canvasContext.clearRect(0, 0, this.width, this.height);
-                }
-                this.canvasContext.fillRect(Math.round(this.currentX), Math.round(this.currentY), 1, 1);
-                break;
         }
     };
     Game.prototype.GetYCoordinateFromMenuState = function (menuState) {
