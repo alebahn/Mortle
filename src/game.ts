@@ -178,7 +178,7 @@ class Game {
 
   // Aim/Launch Variables
   private currentX: number = 2;
-  private currentY: number = 59;
+  private currentY: number = 58;
 
   // Launch Variables
   private readonly Gravity = 0.025;
@@ -215,6 +215,11 @@ class Game {
         this.nextState = "Menu";
         break;
       case "Launch":
+        // If you are in the bottom-right corner, advance the level
+        if (this.currentX >= 90 && this.currentY >= 55) {
+          this.AdvanceToNextLevel();
+          break;
+        }
         // Ceiling collisions stop movement
         if (this.CheckCollision(this.currentX, this.currentY - 1) && this.velocityY < 0) {
           this.velocityX = 0;
@@ -223,12 +228,8 @@ class Game {
         // Floor collisions go back to aiming
         else if (this.CheckCollision(this.currentX, this.currentY + 1)) {
           this.currentX = Math.round(this.currentX);
-          this.currentY = Math.round(this.currentY);
+          this.currentY = Math.round(this.currentY)-1;
           this.nextState = "Aim";
-          // If you land in the bottom-right corner, advance the level
-          if (this.currentX >= 90 && this.currentY >= 55) {
-            this.AdvanceToNextLevel();
-          }
           break;
         }
         // Horizontal collisions bounce horizontally
@@ -381,7 +382,6 @@ class Game {
           case 32: // Space
           case 13: // Enter
             this.nextState = "Launch";
-            this.currentY -= 1;
             this.velocityX = Math.sin(this.aimAngle);
             this.velocityY = -Math.cos(this.aimAngle);
             break;
@@ -413,10 +413,11 @@ class Game {
   }
 
   private AdvanceToNextLevel(): void {
+    this.nextState = "Aim";
     this.nextLevel = this.currentLevel + 1;
     this.aimAngle = 0;
     this.currentX = 2;
-    this.currentY = 59;
+    this.currentY = 58;
     if (this.nextLevel >= levels.length) {
       this.nextState = "Win";
       return;
